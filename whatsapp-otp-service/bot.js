@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const qrcodeTerminal = require('qrcode-terminal');
+const QRCode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,7 +42,7 @@ function initializeWhatsApp() {
 
     whatsappClient.on('qr', (qr) => {
         console.log('📱 QR Code received! Scan with WhatsApp');
-        qrcode.generate(qr, { small: true });
+        qrcodeTerminal.generate(qr, { small: true }); // يطبع في اللوج
         qrCode = qr;
         isAuthenticated = false;
         clientReady = false;
@@ -79,7 +80,7 @@ function initializeWhatsApp() {
     whatsappClient.initialize();
 }
 
-// دالة إرسال رسالة واتساب حقيقية
+// دالة إرسال رسالة واتساب
 async function sendWhatsAppMessage(phoneNumber, message) {
     if (!clientReady || !whatsappClient) {
         throw new Error('WhatsApp client is not ready');
@@ -89,7 +90,7 @@ async function sendWhatsAppMessage(phoneNumber, message) {
         // تنظيف رقم الهاتف
         const cleanedPhone = phoneNumber.replace(/\D/g, '');
         
-        // تنسيق الرقم الدولي
+        // تنسيق الرقم الدولي (افتراضي السعودية 966)
         let formattedPhone;
         if (cleanedPhone.startsWith('966')) {
             formattedPhone = cleanedPhone;
@@ -138,7 +139,8 @@ app.get('/health', (req, res) => {
     });
 });
 
-app.get('/qr', (req, res) => {
+// ✅ API يرجع QR كصورة PNG
+app.get('/qr', async (req, res) => {
     if (isAuthenticated && clientReady) {
         return res.json({ 
             status: 'authenticated',
@@ -147,10 +149,13 @@ app.get('/qr', (req, res) => {
     }
     
     if (qrCode) {
-        res.json({ 
-            qr_code: qrCode,
-            message: 'Scan this QR code with your WhatsApp mobile app'
-        });
+        try {
+            res.setHeader("Content-Type", "image/png");
+            return QRCode.toFileStream(res, qrCode);
+        } catch (err) {
+            console.error("❌ Error generating QR image:", err);
+            return res.status(500).json({ error: "Failed to generate QR image" });
+        }
     } else {
         res.json({ 
             status: 'generating_qr',
@@ -187,7 +192,7 @@ app.post('/send-otp', async (req, res) => {
             });
         }
 
-        const message = `🔐 **رمز التحقق** 🔐
+        const message = `🔐 رمز التحقق 🔐
 
 مرحباً ${name}،
 
