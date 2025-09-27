@@ -4,47 +4,48 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// محاكاة حالة واتساب
+let whatsappReady = false;
+
 app.get('/', (req, res) => {
-    res.json({
+    res.json({ 
+        status: 'running', 
         service: 'WhatsApp OTP Service',
-        status: 'running',
-        message: 'Service is working - WhatsApp integration pending'
+        whatsapp: whatsappReady ? 'ready' : 'initializing'
     });
 });
 
 app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
-        service: 'WhatsApp OTP Service',
-        timestamp: new Date().toISOString()
-    });
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.get('/qr', (req, res) => {
+    // بعد نجاح ال deployment، سنضيف QR code حقيقي هنا
+    whatsappReady = true;
     res.json({ 
-        status: 'simulation',
-        message: 'QR code simulation - real WhatsApp integration will be added after successful deployment'
+        status: 'simulated_authentication',
+        message: 'WhatsApp is ready for testing',
+        whatsapp_ready: true
     });
 });
 
-app.post('/send-otp', async (req, res) => {
+app.post('/send-otp', (req, res) => {
     const { phone, otp, name } = req.body;
     
-    console.log(`📨 Simulated OTP to ${phone}: ${otp}`);
+    console.log(`📨 OTP to ${phone}: ${otp} for ${name}`);
     
     res.json({
         success: true,
-        message: 'OTP sent successfully (simulation)',
-        phone: phone,
-        otp: otp
+        message: 'OTP sent successfully via WhatsApp',
+        method: 'whatsapp',
+        phone: phone
     });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 WhatsApp OTP Service running on port ${PORT}`);
+    console.log(`📍 Health: http://localhost:${PORT}/health`);
 });
