@@ -1,15 +1,16 @@
 {
   "name": "whatsapp-otp-service",
   "version": "1.0.0",
-  "description": "WhatsApp OTP service for Django",
+  "description": "WhatsApp OTP service",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js",
-    "dev": "nodemon bot.js"
+    "start": "node bot.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "whatsapp-web.js": "^1.23.0",
+    "qrcode-terminal": "^0.12.0"
   },
   "engines": {
     "node": "20.x"
