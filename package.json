@@ -4,15 +4,11 @@
   "description": "WhatsApp OTP service",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js",
-    "install": "npm install --build-from-source"
+    "start": "node bot.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "whatsapp-web.js": "^1.23.0",
-    "qrcode-terminal": "^0.12.0",
-    "qrcode": "^1.5.3"
+    "cors": "^2.8.5"
   },
   "engines": {
     "node": "18.x"
